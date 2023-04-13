@@ -1,0 +1,2 @@
+# Ignorar los archivos de configuración de node
+node_modules
