@@ -1,17 +1,16 @@
-"use strict";
-// Importa el modulo 'mongoose' para crear la conexion a la base de datos
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-// Crea el esquema de la coleccion 'usuarios'
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    minlength: 3,
+    maxlength: 30,
   },
   email: {
     type: String,
     required: true,
-    unique: true,
+    // Agrega validación adicional para el formato de correo electrónico si es necesario
   },
   roles: [
     {
@@ -21,8 +20,6 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-// Crea el modelo de datos 'User' a partir del esquema 'userSchema'
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
-// Exporta el modelo de datos 'User'
 module.exports = User;

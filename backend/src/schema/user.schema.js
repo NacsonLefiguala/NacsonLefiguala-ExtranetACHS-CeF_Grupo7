@@ -10,7 +10,7 @@ const roles = Joi.array()
 const userBodySchema = Joi.object({
   name,
   email,
-  roles
+  roles,
 });
 
 module.exports = { userBodySchema };

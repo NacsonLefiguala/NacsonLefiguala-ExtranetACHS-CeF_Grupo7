@@ -37,7 +37,7 @@ async function createUser(req, res) {
           400,
           "Error en la validacion de datos",
           "Bad Request",
-          { message: "Verifique los datos ingresados nulo" },
+          { message: "Verifique los datos ingresados" },
         )
       : respondSuccess(req, res, 201, nuevoUser);
   } catch (error) {
@@ -79,20 +79,23 @@ async function getUserById(req, res) {
  * @param req {Request}
  * @param res {Response}
  */
-async function updateUser(id, user) {
+async function updateUser(req, res) {
   try {
-    const { error } = userBodySchema.validate(user) // Validamos el cuerpo del usuario con el esquema definido
-    if (error) return null // Si hay errores de validación, retornamos null
-    const roles = await Role.find({ name: { $in: user.roles } }) // Buscamos los roles por nombre en la colección "Role"
-    const roleIds = roles.map(role => role._id) // Obtenemos los identificadores ObjectId de los roles encontrados
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { ...user, roles: roleIds }, // Actualizamos el usuario asignando los nuevos roles
-      { new: true } // Opción para retornar el usuario actualizado
-    )
-    return updatedUser // Retornamos el usuario actualizado
+    const { id } = req.params;
+    const user = await UserService.updateUser(id, req.body);
+    user === null
+      ? respondError(
+          req,
+          res,
+          404,
+          "No se encontro el usuario solicitado",
+          "Not Found",
+          { message: "Verifique el id ingresado" },
+        )
+      : respondSuccess(req, res, 200, user);
   } catch (error) {
-    handleError(error, "user.service -> updateUser") // Manejamos cualquier error ocurrido
+    handleError(error, "user.controller -> updateUser");
+    respondError(req, res, 500, "No se pudo actualizar el usuario");
   }
 }
 

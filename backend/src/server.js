@@ -1,6 +1,5 @@
 // Importa el archivo 'configEnv.js' para cargar las variables de entorno
 const { configEnv } = require("./config/configEnv.js");
-const { validRut } = require('chilean-rutify');
 // Importa el módulo 'cors' para agregar los cors
 const cors = require("cors");
 // Importa el módulo 'express' para crear la aplicacion web
@@ -67,9 +66,8 @@ async function setupAPI() {
     handleFatalError(err, "/server.js -> setupAPI");
   }
 }
-var prueba = "201013801-1"
-prueba = validRut(prueba)
+
 // Inicia la API
 setupAPI()
-  .then(() => console.log(prueba))
+  .then(() => console.log("=> API Iniciada exitosamente"))
   .catch((err) => handleFatalError(err, "/server.js -> setupAPI"));

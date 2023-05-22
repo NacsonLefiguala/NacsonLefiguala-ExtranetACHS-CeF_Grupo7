@@ -22,8 +22,6 @@ async function getUsers() {
     return await User.find();
   } catch (error) {
     handleError(error, "user.service -> getUsers");
-    // Opcionalmente, puedes lanzar el error para propagarlo al llamador
-    throw error;
   }
 }
 
@@ -37,19 +35,16 @@ async function createUser(user) {
   // Esta funcion es similar al singup
   try {
     const { error } = userBodySchema.validate(user);
-    console.log(error)
     if (error) return null;
-    console.log("Esquema nulo")
-    const { name, email, rut ,roles} = user;
+    const { name, email, roles } = user;
 
     const userFound = await User.findOne({ email: user.email });
     if (userFound) return null;
 
     const rolesFound = await Role.find({ name: { $in: roles } });
-    console.log(rolesFound)
     const myRole = rolesFound.map((role) => role._id);
 
-    const newUser = new User({ name, email, roles: myRole ,rut});
+    const newUser = new User({ name, email, roles: myRole });
     return await newUser.save();
   } catch (error) {
     handleError(error, "user.service -> createUser");
@@ -79,26 +74,25 @@ async function getUserById(id) {
  */
 async function updateUser(id, user) {
   try {
-    const { error } = userBodySchema.validate(user);
+    const { error } = userBodySchema.validate(user); // Validamos el cuerpo del usuario con el esquema definido
     console.log("user.service.js -> user", user);
     console.log("user.service.js -> error", error);
-    if (error) return null;
+    if (error) return null; // Si hay errores de validación, retornamos null
 
-    const roles = await Role.find({ name: { $in: user.roles } });
-    const roleIds = roles.map(role => role._id);
+    const roles = await Role.find({ name: { $in: user.roles } }); // Buscamos los roles por nombre en la colección "Role"
+    const roleIds = roles.map(role => role._id); // Obtenemos los identificadores ObjectId de los roles encontrados
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { ...user, roles: roleIds },
-      { new: true }
+      { ...user, roles: roleIds }, // Actualizamos el usuario asignando los nuevos roles
+      { new: true } // Opción para retornar el usuario actualizado
     );
 
-    return updatedUser;
+    return updatedUser; // Retornamos el usuario actualizado
   } catch (error) {
-    handleError(error, "user.service -> updateUser");
+    handleError(error, "user.service -> updateUser"); // Manejamos cualquier error ocurrido
   }
 }
-
 
 /**
  * @name deleteUser
