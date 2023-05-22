@@ -22,6 +22,8 @@ async function getUsers() {
     return await User.find();
   } catch (error) {
     handleError(error, "user.service -> getUsers");
+    // Opcionalmente, puedes lanzar el error para propagarlo al llamador
+    throw error;
   }
 }
 
@@ -35,16 +37,19 @@ async function createUser(user) {
   // Esta funcion es similar al singup
   try {
     const { error } = userBodySchema.validate(user);
+    console.log(error)
     if (error) return null;
-    const { name, email, roles } = user;
+    console.log("Esquema nulo")
+    const { name, email, rut ,roles} = user;
 
     const userFound = await User.findOne({ email: user.email });
     if (userFound) return null;
 
     const rolesFound = await Role.find({ name: { $in: roles } });
+    console.log(rolesFound)
     const myRole = rolesFound.map((role) => role._id);
 
-    const newUser = new User({ name, email, roles: myRole });
+    const newUser = new User({ name, email, roles: myRole ,rut});
     return await newUser.save();
   } catch (error) {
     handleError(error, "user.service -> createUser");
@@ -75,13 +80,25 @@ async function getUserById(id) {
 async function updateUser(id, user) {
   try {
     const { error } = userBodySchema.validate(user);
+    console.log("user.service.js -> user", user);
+    console.log("user.service.js -> error", error);
     if (error) return null;
 
-    return await User.findByIdAndUpdate(id, user);
+    const roles = await Role.find({ name: { $in: user.roles } });
+    const roleIds = roles.map(role => role._id);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { ...user, roles: roleIds },
+      { new: true }
+    );
+
+    return updatedUser;
   } catch (error) {
     handleError(error, "user.service -> updateUser");
   }
 }
+
 
 /**
  * @name deleteUser
