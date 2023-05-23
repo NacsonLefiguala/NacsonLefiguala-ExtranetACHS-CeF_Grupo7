@@ -67,6 +67,25 @@ async function setupAPI() {
   }
 }
 
+const multer = require("multer");
+
+// Configura el almacenamiento de multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Especifica la carpeta de destino para guardar los archivos subidos
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    // Genera un nombre único para el archivo subido
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const extension = file.originalname.split(".").pop();
+    cb(null, file.fieldname + "-" + uniqueSuffix + "." + extension);
+  },
+});
+
+// Crea el middleware de multer
+const upload = multer({ storage });
+
 // Inicia la API
 setupAPI()
   .then(() => console.log("=> API Iniciada exitosamente"))
